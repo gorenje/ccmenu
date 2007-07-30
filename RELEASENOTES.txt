@@ -1,7 +1,0 @@
-CruiseControl Release Notes
-
-Changes listed by release, then alphabetically.
-
-CCMenu 1.0
-
-* Basic version
