@@ -1,4 +1,4 @@
-
+#import <Growl/Growl.h>
 #import "CCMServerStatusReader.h"
 
 
@@ -43,8 +43,20 @@ static NSString *XML_DATE_FORMAT = @"%Y-%m-%dT%H:%M:%S";
 {
 	NSError *error = nil;
     NSXMLDocument *doc = [[[NSXMLDocument alloc] initWithData:responseData options:NSXMLNodeOptionsNone error:&error] autorelease];
-	if(error != nil)
-		[NSException raise:@"Parse Exception" format:@"%@", [error localizedDescription]];
+	
+	if(error != nil) {
+		NSLog(@"Unable to parse project info because of error: %@", error);
+		[GrowlApplicationBridge 	
+			notifyWithTitle:@"Unable to Parse Project Info"
+				description:[error localizedDescription]
+		   notificationName:@"Parse Exception"
+				   iconData:nil
+				   priority:0
+				   isSticky:NO
+			   clickContext:nil];
+		return [NSMutableArray array];
+	}
+	
 	NSMutableArray *infoArray = [NSMutableArray array];
 	NSEnumerator *projectEnum = [[doc nodesForXPath:@"//Project" error:nil] objectEnumerator];
 	NSXMLElement *element = nil;
