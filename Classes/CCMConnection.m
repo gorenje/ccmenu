@@ -8,13 +8,16 @@
 - (id)initWithURL:(NSURL *)theServerUrl
 {
 	[super init];
+	[NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:[theServerUrl host]];
 	serverUrl = [theServerUrl retain];
 	return self;
 }
 
 - (id)initWithURLString:(NSString *)theServerUrlAsString
 {
-	return [self initWithURL:[NSURL URLWithString:theServerUrlAsString]];
+	NSURL *url = [NSURL URLWithString:theServerUrlAsString];
+	[NSURLRequest setAllowsAnyHTTPSCertificate:YES forHost:[url host]];
+	return [self initWithURL:url];
 }
 
 - (void)dealloc
@@ -35,13 +38,13 @@
 
 - (NSString *)errorStringForError:(NSError *)error
 {
-	return [NSString stringWithFormat:@"Failed to get status from [%@]: %@",   
+	return [NSString stringWithFormat:@"Failed to get status from [%@]: %@",
 		[[error userInfo] objectForKey:NSErrorFailingURLStringKey], [error localizedDescription]];
 }
 
 - (NSString *)errorStringForResponse:(NSHTTPURLResponse *)response
 {
-	return [NSString stringWithFormat:@"Failed to get status from [%@]: %@",   
+	return [NSString stringWithFormat:@"Failed to get status from [%@]: %@",
 			[response URL], [NSHTTPURLResponse localizedStringForStatusCode:[response statusCode]]];
 }
 
@@ -77,8 +80,8 @@
 	if(urlConnection != nil)
 		return;
 	NSURLRequest *request = [NSURLRequest requestWithURL:serverUrl cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30.0];
-	if((urlConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self]) == nil) 
-		[NSException raise:@"ConfigurationException" format:@"Cannot create connection for URL [%@]", [serverUrl absoluteString]];	
+	if((urlConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self]) == nil)
+		[NSException raise:@"ConfigurationException" format:@"Cannot create connection for URL [%@]", [serverUrl absoluteString]];
 	receivedData = [[NSMutableData data] retain];
 }
 
