@@ -1,0 +1,6 @@
+build/*
+.DS_Store
+Frameworks/EDCommon.framework
+Frameworks/Growl.framework
+Frameworks/OCMock.framework
+Frameworks/Sparkle.framework
