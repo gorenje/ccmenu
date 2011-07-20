@@ -8,7 +8,7 @@ struct {
 	NSString *key;
 	NSString *name;
 	NSString *description;
-} growlNotifications[5];		
+} growlNotifications[6];		
 
 				
 @implementation CCMGrowlAdaptor
@@ -30,6 +30,10 @@ struct {
 	growlNotifications[3].key = CCMFixedBuild;
 	growlNotifications[3].name = NSLocalizedString(@"Fixed build", "Growl notification for successful build");
 	growlNotifications[3].description = NSLocalizedString(@"Recent checkins have fixed the build.", "For Growl notificiation");
+
+	growlNotifications[4].key = CCMServerIsDown;
+	growlNotifications[4].name = NSLocalizedString(@"Server down", "Growl notification for successful build");
+	growlNotifications[4].description = NSLocalizedString(@"Server is unavailable, no idea what is going on.", "For Growl notificiation");
 }	
 
 - (NSDictionary *)registrationDictionaryForGrowl

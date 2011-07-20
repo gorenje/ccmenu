@@ -1,6 +1,6 @@
 #import <Growl/Growl.h>
 #import "CCMServerStatusReader.h"
-
+#import "CCMBuildNotificationFactory.h"
 
 @implementation CCMServerStatusReader
 
@@ -46,14 +46,13 @@ static NSString *XML_DATE_FORMAT = @"%Y-%m-%dT%H:%M:%S";
 	
 	if(error != nil) {
 		NSLog(@"Unable to parse project info because of error: %@", error);
-		[GrowlApplicationBridge 	
-			notifyWithTitle:@"Unable to Parse Project Info"
-				description:[error localizedDescription]
-		   notificationName:@"Parse Exception"
-				   iconData:nil
-				   priority:0
-				   isSticky:NO
-			   clickContext:nil];
+        
+        NSMutableDictionary *notificationInfo = [NSMutableDictionary dictionary];
+        [notificationInfo setObject:@"All projects" forKey:@"projectName"];
+        [notificationInfo setObject:CCMServerIsDown forKey:@"buildResult"];
+        
+        [[NSNotificationCenter defaultCenter]
+            postNotificationName:CCMBuildCompleteNotification object:self userInfo:notificationInfo];
 		return [NSMutableArray array];
 	}
 	

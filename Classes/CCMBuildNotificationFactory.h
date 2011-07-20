@@ -15,3 +15,4 @@ extern NSString *CCMSuccessfulBuild;
 extern NSString *CCMFixedBuild;
 extern NSString *CCMBrokenBuild;
 extern NSString *CCMStillFailingBuild;
+extern NSString *CCMServerIsDown;
