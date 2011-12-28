@@ -69,16 +69,16 @@
 		[statusItem setImage:[imageFactory imageForActivity:nil lastBuildStatus:nil]];
 		[statusItem setTitle:@""];
 	}
+	else if(failCount > 0)
+	{
+		[statusItem setImage:[imageFactory imageForActivity:CCMSleepingActivity lastBuildStatus:CCMFailedStatus]];
+		[statusItem setTitle:[NSString stringWithFormat:@"%u", failCount]];
+	}
 	else if(buildCount > 0)
 	{
 		NSString *status = isFixing ? CCMFailedStatus : CCMSuccessStatus;
 		[statusItem setImage:[imageFactory imageForActivity:CCMBuildingActivity lastBuildStatus:status]];
 		[statusItem setTitle:@""];
-	}
-	else if(failCount > 0)
-	{
-		[statusItem setImage:[imageFactory imageForActivity:CCMSleepingActivity lastBuildStatus:CCMFailedStatus]];
-		[statusItem setTitle:[NSString stringWithFormat:@"%u", failCount]];
 	}
 	else
 	{
