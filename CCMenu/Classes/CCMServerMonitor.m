@@ -54,9 +54,7 @@ NSString *CCMProjectStatusUpdateNotification = @"CCMProjectStatusUpdateNotificat
 
 - (CCMServer *)serverForConnection:(CCMConnection *)connection
 {
-	NSEnumerator *pairEnum = [serverConnectionPairs objectEnumerator];
-	EDObjectPair *pair;
-	while((pair = [pairEnum nextObject]) != nil)
+    for(EDObjectPair *pair in serverConnectionPairs)
 	{
 		if([pair secondObject] == connection)
 			return [pair firstObject];
@@ -115,26 +113,25 @@ NSString *CCMProjectStatusUpdateNotification = @"CCMProjectStatusUpdateNotificat
 	if(server == nil)
 		return;
     
-//    NSEnumerator *projectEnum = [[server projects] objectEnumerator];
-//    CCMProject *project;
-//    while((project = [projectEnum nextObject]) != nil)
-//    {
-//        [project updateWithInfo:[NSDictionary dictionaryWithObject:@"No project information provided by server." forKey:@"errorString"]]; 
-//    }
-	
-	NSEnumerator *projectInfoEnum = [projectInfoList objectEnumerator];
-	NSDictionary *projectInfo;
-	while((projectInfo = [projectInfoEnum nextObject]) != nil)
+    NSMutableSet *unseenProjects = [[server projects] mutableCopy];
+
+    for(NSDictionary *projectInfo in projectInfoList)
 	{
 		CCMProject *project = [server projectNamed:[projectInfo objectForKey:@"name"]];
 		if(project == nil)
 			continue;
+        [unseenProjects removeObject:project];
 		NSNotification *notification = [notificationFactory buildCompleteNotificationForOldProjectInfo:[project info] andNewProjectInfo:projectInfo];
 		if(notification != nil)
 			[notificationCenter postNotification:notification];
-		[server updateWithProjectInfo:projectInfo];
+		[project updateWithInfo:projectInfo];
 	}
-	
+    
+    for(CCMProject *project in unseenProjects)
+    {
+        [project updateWithInfo:[NSDictionary dictionaryWithObject:@"No project information provided by server." forKey:@"errorString"]]; 
+    }
+    
 	[notificationCenter postNotificationName:CCMProjectStatusUpdateNotification object:self];
 }
 

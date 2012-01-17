@@ -42,27 +42,32 @@
 	while([[[menu itemArray] objectAtIndex:index] isSeparatorItem] == FALSE)
 		[menu removeItemAtIndex:index];
 	
-	unsigned failCount = 0;
-	unsigned buildCount = 0;
-	bool isFixing = NO;
+	unsigned failSleepingCount = 0;
+	unsigned failBuildingCount = 0;
+	unsigned successSleepingCount = 0;
+	unsigned successBuildingCount = 0;
 	bool haveAtLeastOneStatus = NO;
-	NSEnumerator *projectEnum = [[projectList sortedArrayByComparingAttribute:@"name"] objectEnumerator];
-	CCMProject *project;
-	while((project = [projectEnum nextObject]) != nil)
+    for(CCMProject *project in [projectList sortedArrayByComparingAttribute:@"name"])
 	{
 		NSString *title = [NSString stringWithFormat:@"%@", [project name]];
 		NSMenuItem *menuItem = [menu insertItemWithTitle:title action:@selector(openProject:) keyEquivalent:@"" atIndex:index++];
 		NSImage *image = [imageFactory imageForActivity:[project activity] lastBuildStatus:[project lastBuildStatus]];
 		image = [imageFactory convertForMenuUse:image];
 		[menuItem setImage:image];
-		if([project isFailed])
-			failCount += 1;
-		if([project isBuilding])
-			buildCount += 1;
-		if([project isBuilding] && [project isFailed])
-			isFixing = YES;
+		BOOL isFailed = [project isFailed];
+		BOOL isBuilding = [project isBuilding];
+		if (isFailed && isBuilding)
+			failBuildingCount += 1;
+		else if (isFailed && !isBuilding)
+			failSleepingCount += 1;
+		else if (!isFailed && isBuilding)
+			successBuildingCount += 1;
+		else 
+			successSleepingCount += 1;
+
 		if([project lastBuildStatus] != nil)
 			haveAtLeastOneStatus = YES;
+
 		[menuItem setTarget:self];
 		[menuItem setRepresentedObject:project];
 	}
@@ -71,16 +76,20 @@
 		[statusItem setImage:[imageFactory imageForActivity:nil lastBuildStatus:nil]];
 		[statusItem setTitle:@""];
 	}
-	else if(buildCount > 0)
-	{
-		NSString *status = isFixing ? CCMFailedStatus : CCMSuccessStatus;
-		[statusItem setImage:[imageFactory imageForActivity:CCMBuildingActivity lastBuildStatus:status]];
-		[statusItem setTitle:@""];
-	}
-	else if(failCount > 0)
+	else if(failSleepingCount > 0)
 	{
 		[statusItem setImage:[imageFactory imageForActivity:CCMSleepingActivity lastBuildStatus:CCMFailedStatus]];
-		[statusItem setTitle:[NSString stringWithFormat:@"%u", failCount]];
+		[statusItem setTitle:[NSString stringWithFormat:@"%u", failSleepingCount + failBuildingCount]];
+	}
+	else if(failBuildingCount > 0)
+	{
+		[statusItem setImage:[imageFactory imageForActivity:CCMBuildingActivity lastBuildStatus:CCMFailedStatus]];
+		[statusItem setTitle:[NSString stringWithFormat:@"%u", failBuildingCount]];
+	}
+	else if (successBuildingCount > 0)
+	{
+		[statusItem setImage:[imageFactory imageForActivity:CCMBuildingActivity lastBuildStatus:CCMSuccessStatus]];
+		[statusItem setTitle:@""];
 	}
 	else
 	{
